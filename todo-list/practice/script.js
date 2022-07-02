@@ -4,11 +4,65 @@
   const get = (target) => {
     return document.querySelector(target);
   };
+  const getAll = (target) => {
+    return document.querySelectorAll(target);
+  };
 
   const $todos = get(".todos"); // get 으로 querySelector 잡아주기
   const $form = get(".todo_form");
   const $todoInput = get(".todo_input");
+  const $pagination = get(".pagination");
   const API_URL = `http://localhost:3000/todos`;
+
+  let currentPage = 1;
+  const totalCount = 53;
+  const pageCount = 5;
+  const limit = 5;
+
+  const pagination = () => {
+    let totalPage = Math.ceil(totalCount / limit);
+    let pageGroup = Math.ceil(currentPage / pageCount);
+    let lastNumber = pageGroup * pageCount;
+    if (lastNumber > totalPage) {
+      lastNumber = totalPage;
+    }
+    let firstNumber = lastNumber - (pageCount - 1);
+
+    const next = lastNumber + 1;
+    const prev = firstNumber - 1;
+
+    let html = "";
+
+    if (prev > 0) {
+      html += "<button class='prev' data-fn='prev'>이전</button> ";
+    }
+
+    for (let i = firstNumber; i <= lastNumber; i++) {
+      html += `<button class="pageNumber" id="page_${i}">${i}</button>`;
+    }
+    if (lastNumber < totalPage) {
+      html += `<button class='next' data-fn='next'>다음</button>`;
+    }
+
+    $pagination.innerHTML = html;
+    const $currentPageNumber = get(`.pageNumber#page_${currentPage}`);
+    $currentPageNumber.style.color = "#9dc0e8";
+
+    const $currentPageNumbers = getAll(`.pagination button`);
+    $currentPageNumbers.forEach((button) => {
+      button.addEventListener("click", () => {
+        if (button.dataset.fn === "prev") {
+          currentPage = prev;
+        } else if (button.dataset.fn === "next") {
+          currentPage = next;
+        } else {
+          currentPage = button.innerText;
+        }
+        pagination();
+        getTodos();
+      });
+    });
+  };
 
   const createTodoElement = (item) => {
     const { id, content, completed } = item;
@@ -48,23 +102,24 @@
 
   // READ
   const renderAllTodos = (todos) => {
-    //$todos.innerHTML = ""; // 한번 초기화 해주기
+    $todos.innerHTML = ""; // 한번 초기화 해주기 -> 안해주면 페이지네이션 적용 안됨
     todos.forEach((item) => {
       const todoElement = createTodoElement(item); // 태그들 넣어줌
       $todos.appendChild(todoElement); // 적용시킴
     });
   };
 
+  // fetch 데이터 받아서 renderAllTodos 함수 호출해주고 todos 보내줌
   const getTodos = () => {
-    fetch(API_URL)
+    fetch(`${API_URL}?_page=${currentPage}&_limit=${limit}`)
       .then((response) => response.json())
       .then((todos) => {
-        renderAllTodos(todos); // fetch 데이터 받아서 renderAllTodos 함수 호출해주고 todos 보내줌
+        renderAllTodos(todos);
       })
       .catch((error) => console.error(error.message));
   };
 
-  const addTodos = (e) => {
+  const addTodo = (e) => {
     e.preventDefault();
     console.log($todoInput.value);
     const todo = {
@@ -90,13 +145,14 @@
     console.log(e.target);
     const $item = e.target.closest(".item");
     const id = $item.dataset.id; //dataset 은 html element에서만 가져올 수 있나봐
+
     console.log(id);
     fetch(`${API_URL}/${id}`, {
-      method: "DELETE", //PUT은 전체교체, PATCH는 부분 교체
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+      method: "DELETE",
+    })
+      .then((response) => response.json())
+      .then(getTodos)
+      .catch((error) => console.error(error.message));
   };
 
   // $todos를 클릭했을때 그 타겟이 todo_checkbox일때를 찾아야 함
@@ -172,12 +228,15 @@
   const init = () => {
     window.addEventListener("DOMContentLoaded", () => {
       getTodos();
+      pagination();
     });
-    $form.addEventListener("submit", addTodos);
+
+    $form.addEventListener("submit", addTodo);
     $todos.addEventListener("click", toggleTodo);
-    $todos.addEventListener("click", removeTodo);
     $todos.addEventListener("click", changeEditMode);
     $todos.addEventListener("click", editTodo);
+    $todos.addEventListener("click", removeTodo);
   };
+
   init();
 })();
