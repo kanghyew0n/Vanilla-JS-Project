@@ -124,6 +124,51 @@
       .catch((error) => console.error(error.message));
   };
 
+  const changeEditMode = (e) => {
+    const $item = e.target.closest(".item");
+    const $label = $item.querySelector("label");
+    const $editInput = $item.querySelector('input[type="text"]');
+    const $contentButtons = $item.querySelector(".content_buttons");
+    const $editButtons = $item.querySelector(".edit_buttons");
+    const value = $editInput.value;
+
+    if (e.target.className === "todo_edit_button") {
+      $label.style.display = "none";
+      $editInput.style.display = "block";
+      $contentButtons.style.display = "none";
+      $editButtons.style.display = "block";
+      $editInput.focus(); // 그냥 포커스만 하면 작성되어있는 텍스트 가장 앞쪽에 포커스됨
+      $editInput.value = "";
+      $editInput.value = value;
+    }
+
+    if (e.target.className === "todo_edit_cancel_button") {
+      $label.style.display = "block";
+      $editInput.style.display = "none";
+      $contentButtons.style.display = "block";
+      $editButtons.style.display = "none";
+      $editInput.value = $label.innerText;
+    }
+  };
+
+  const editTodo = (e) => {
+    // 특정 id 가져와서 수정해야함
+    if (e.target.className !== "todo_edit_confirm_button") return; //className이 아닐때임 !
+    const $item = e.target.closest(".item");
+    const id = $item.dataset.id;
+    const $editInput = $item.querySelector('input[type="text"]');
+    const content = $editInput.value;
+
+    fetch(`${API_URL}/${id}`, {
+      method: "PATCH",
+      headers: { "Content-type": "application/json" },
+      body: JSON.stringify({ content }),
+    })
+      .then((response) => response.json())
+      .then(getTodos)
+      .catch((error) => console.error(error.message));
+  };
+
   const init = () => {
     window.addEventListener("DOMContentLoaded", () => {
       getTodos();
@@ -131,6 +176,8 @@
     $form.addEventListener("submit", addTodos);
     $todos.addEventListener("click", toggleTodo);
     $todos.addEventListener("click", removeTodo);
+    $todos.addEventListener("click", changeEditMode);
+    $todos.addEventListener("click", editTodo);
   };
   init();
 })();
