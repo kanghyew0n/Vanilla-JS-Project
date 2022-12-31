@@ -1,7 +1,11 @@
-console.log("here");
+// console.log("here");
+
+// import { addStationName } from "../util/station.js";
 
 const getItem = (e) => document.querySelector(e);
 const getAllItem = (e) => document.querySelectorAll(e);
+
+// log()
 
 const $header = getItem("#header");
 const $buttons = getAllItem("#button");
@@ -11,8 +15,7 @@ $buttons.forEach((button) => {
     button.addEventListener("click", () => {
         const pathname = button.className;
         addRouter(pathname);
-        renderHTML()
-
+        renderHTML();
     });
 });
 
@@ -26,6 +29,4 @@ const addRouter = (pathname) => {
 
 const renderHTML = () => {
     $state.innerHTML = history.state.router;
-}
-
-
+};
