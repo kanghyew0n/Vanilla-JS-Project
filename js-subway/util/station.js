@@ -1,18 +1,18 @@
 const getItem = (e) => document.querySelector(e);
+const getAllItem = (e) => document.querySelectorAll(e);
 
 const $stationList = getItem("#stationList");
 const $stationName = getItem("#stationName");
 const $stationAddButton = getItem("#stationAddButton");
-const $delete = getItem(".delete");
 
-const stationArr = [];
+let stationArr = [];
 
 const addTableRow = () => {
     const newRow = $stationList.insertRow();
-    stationArr.forEach((element) => {
+    stationArr.forEach((element, idx) => {
         newRow.innerHTML = `
             <td>${element}</td>
-            <td><button class="delete">삭제</button></td>
+            <td><button class="delete" id=${idx}>삭제</button></td>
     `;
     });
 };
@@ -40,4 +40,14 @@ $stationAddButton.addEventListener("click", () => {
     validationCheck();
 });
 
-export { addStationName };
+
+
+$stationList.addEventListener("click", () => {
+    const $delete = getAllItem(".delete");
+    $delete.forEach((item) => {
+        item.addEventListener("click", () => {
+            console.log(item)
+        });
+    });
+});
+
