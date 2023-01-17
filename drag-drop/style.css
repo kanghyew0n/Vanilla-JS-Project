@@ -1,0 +1,36 @@
+body {
+    margin: 0;
+    padding: 20px;
+    background-color: #333;
+}
+
+h1, p {
+    color: #fff;
+}
+
+.wapper {
+    display: flex;
+    gap: 20px;
+}
+
+button {
+    width: 70px;
+    height: 70px;
+    border: none;
+    border-radius: 8px;
+    margin: 12px;
+    cursor: move;
+    font-size: 30px;
+    background: #eaeaea4f;
+    transition: all 0.2s;
+}
+
+.container {
+    padding: 10px;
+    background-color: #b5c1dc57;
+    border-radius: 8px;
+}
+
+.draggable.dragging {
+    opacity: 0.5;
+}
